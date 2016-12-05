@@ -34,15 +34,14 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 @SuppressLint("RtlHardcoded")
-public class SwipeRevealLayout extends ViewGroup {
+public class SwipeRevealLayout extends RelativeLayout {
     // These states are used only for ViewBindHelper
     protected static final int STATE_CLOSE     = 0;
     protected static final int STATE_CLOSING   = 1;
@@ -236,15 +235,15 @@ public class SwipeRevealLayout extends ViewGroup {
             int measuredChildWidth = child.getMeasuredWidth();
 
             // need to take account if child size is match_parent
-            final LayoutParams childParams = child.getLayoutParams();
+            final RelativeLayout.LayoutParams childParams = (RelativeLayout.LayoutParams)child.getLayoutParams();
             boolean matchParentHeight = false;
             boolean matchParentWidth = false;
 
             if (childParams != null) {
                 matchParentHeight = (childParams.height == LayoutParams.MATCH_PARENT) ||
-                        (childParams.height == LayoutParams.FILL_PARENT);
+                        (childParams.height == LayoutParams.MATCH_PARENT);
                 matchParentWidth = (childParams.width == LayoutParams.MATCH_PARENT) ||
-                        (childParams.width == LayoutParams.FILL_PARENT);
+                        (childParams.width == LayoutParams.MATCH_PARENT);
             }
 
             if (matchParentHeight) {
@@ -287,7 +286,12 @@ public class SwipeRevealLayout extends ViewGroup {
                     break;
             }
 
-            child.layout(left, top, right, bottom);
+            child.layout(
+                    left + childParams.leftMargin,
+                    top + childParams.topMargin,
+                    right - childParams.rightMargin,
+                    bottom - childParams.bottomMargin
+            );
         }
 
         // taking account offset when mode is SAME_LEVEL
@@ -333,7 +337,7 @@ public class SwipeRevealLayout extends ViewGroup {
             throw new RuntimeException("Layout must have two children");
         }
 
-        final LayoutParams params = getLayoutParams();
+        final ViewGroup.LayoutParams params = getLayoutParams();
 
         final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -357,7 +361,7 @@ public class SwipeRevealLayout extends ViewGroup {
 
         for (int i = 0; i < getChildCount(); i++) {
             final View child = getChildAt(i);
-            final LayoutParams childParams = child.getLayoutParams();
+            final RelativeLayout.LayoutParams childParams = (RelativeLayout.LayoutParams)child.getLayoutParams();
 
             if (childParams != null) {
                 if (childParams.height == LayoutParams.MATCH_PARENT) {
